@@ -114,7 +114,12 @@ class Unpickler(pickle.Unpickler, object):
 
 
     def load_build(self):
-        super(Unpickler, self).load_build()
+        # self can either be an instance of this class, or it may be a pickle.Unpickler instance if
+        # unpickling via the pickle.Unpickler dispatch table.
+        pickle.Unpickler.load_build(self)
+        if not hasattr(self, "_unpickled_generators_memo"):
+            self._unpickled_generators_memo = {}
+
         if type(self.stack[-1]) == SnapshotEnvelope:
             obj = self.stack[-1]
             gencopy = self._unpickled_generators_memo.get(id(obj.obj))
@@ -126,7 +131,6 @@ class Unpickler(pickle.Unpickler, object):
             obj = self.stack[-1]
             if not obj._uses_envelope:
                 self.stack[-1] = copy_generator(obj, copy_filter = lambda loc: True)
-
 
 
     pickle.Unpickler.dispatch[pickle.BUILD] = load_build
