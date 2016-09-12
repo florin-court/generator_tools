@@ -561,7 +561,8 @@ def copy_generator(f_gen, copy_filter = is_sharable ):
 def new_globals(from_frame):
     _globals = {}
     _globals.update(globals())
-    _globals.update(from_frame.f_globals)
+    if from_frame.f_globals:
+        _globals.update(from_frame.f_globals)
     return _globals
 
 def _copy_generator_copy(g_gen):
